@@ -1,0 +1,96 @@
+#+TITLE: Synchronization as a Component for TLA+
+#+AUTHOR: Marko Schütz-Schmuck
+
+* Overview
+  I started learning about TLA+ and one of my goals is to understand how to translate and
+  represent features from the RAISE Specification Language (RSL) in TLA+. 
+
+  RSL uses a flavor of Hoare's Communicating Sequential Processes (CSP) to represent
+  concurrency, communication, and synchronization. In it two processes participate in a
+  synchronizing communication event, one as the sender, one as the receiver. TLA+ does not
+  have a built-in channel concept, so it needs to be expressed with TLA+'s notions. Leslie
+  Lamport's book "Specifying Systems" offers several variations of the concept "Channel",
+  but does not mention synchronization. The idea of synchronization requires that we have
+  at least two activities that can be synchronized. TLA+ uses a common global behavior
+  which is a sequence of global states. There is not a partition into sub-activities
+  unless we introduce it explicitly. A thread is a virtual processor together with an
+  address space. Since both, the virtual processor and the virtual address space can be
+  viewed as variables taking on values and subject to actions, for the purpose of TLA+, a
+  thread would be the set of variables. That part of the global state that represents some
+  thread t would not be accessible from any action not belonging to t, since that would
+  break the abstraction of what a thread is. Except for a common, shared part used for
+  communication and synchronization. The "program counter" is part of the variables
+  describing a thread and so sequencing of actions has to be explicitly captured in
+  TLA+. Synchronization of two threads means that there are actions a thread can trigger
+  that might require the triggering thread to wait for the other to trigger a
+  corresponding action. In terms of the considerations so far, "waiting" means that the
+  variables of the corresponding thread do not change. For synchronization using a
+  component the variables for each thread have to be passed to that component, so we can
+  express that these are unchanged. Also, the actions to synchronize need to be passed to
+  the component.
+
+** remaining                                                       :noexport:
+
+   To synchronize two threads they need to share a synchronization object. Either thread
+   can be the first to access the synchronization object and will then need to be blocked
+   waiting for the other.
+
+   When a thread blocks it is waiting for a specific event to occur and while it is
+   blocked it can not make any further progress. It cannot change state. With respect to
+   the representation in TLA+ this means it cannot change any of the variables
+   representing its state.
+
+   I want a composable specification of a synchronizing communications channel, so its
+   operations need to be blocking until the counterpart executes the complementary
+   action. 
+
+   I think this can be achieved by creating an INSTANCE of the module that implements the
+   channel and pass in variables that will remain constant in those parts of the behavior
+   that represent the thread being blocked. 
+
+   If a thread tries to send and the receiver hasn't reached its "receive" yet for the
+   message in the channel the sender should block before even writing data to the
+   channel.
+
+   Two threads running in parallel will amount to the specification formulas for the two
+   threads in an or \/. Each of them will use a conjunct to bring in the channel
+   specification and use its corresponding send() or receive() operators. What if several
+   threads can run in parallel? Consider two then think about more.
+
+   [2019-06-10 Mon] Initially, when I started learning TLA+, I could not find anything on
+   synchronization. Maybe I was overlooking it... What I wanted to represent was 2 threads
+   of actions, that synchronize. What needs to be considered first is what is a thread. A
+   thread consists of a state that is affected by the actions that describe the
+   thread. Synchronization of two threads is then clamping down the values of the thread
+   variables of one thread while it awaits synchronization with the other thread. What I
+   specifically was looking for was synchronization that could be composed onto an
+   existing specification without any change to the underlying specification.
+
+   The 
+
+* Emacs setup                                                      :noexport:
+# Local Variables:
+# eval: (add-to-list 'load-path ".")
+# eval: (require 'ox-extra)
+# eval: (ox-extras-activate '(ignore-headlines))
+# End:
+
+
+* setup                                                            :noexport:
+#+EMAIL:     MarkoSchuetz at web dot de
+#+DESCRIPTION: 
+#+STARTUP: overview indent
+#+LANGUAGE:  en
+#+OPTIONS:   H:2 creator:nil timestamp:nil num:t toc:nil \n:nil ~:~ @:t ::t |:t ^:nil -:t f:t *:t <:t ':t
+#+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:t pri:nil tags:not-in-toc author:nil title:t
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+LaTeX_CLASS: article
+#+LaTeX_HEADER:  \usepackage{fancyvrb}
+#+LaTeX_HEADER:  \usepackage{xcolor}
+#+LATEX_HEADER:  \usepackage[inline]{enumitem}
+#+LATEX_HEADER:  \usepackage{svg}
+#+LATEX_HEADER:  \usepackage[english]{babel}
+
