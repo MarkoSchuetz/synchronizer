@@ -63,8 +63,24 @@ Spec ==
   /\ Init  
   /\ [][Next]_vars
 -----------------------------------------------------------------------------
+ThreadAWaitsCorrectly == 
+  [][\E d \in Message: CH!Send(d) 
+       => \/ /\ threadBWaiting 
+             /\ \neg threadBWaiting' 
+             /\ UNCHANGED threadAWaiting 
+          \/ /\ \neg threadBWaiting 
+             /\ threadAWaiting' 
+             /\ UNCHANGED threadBWaiting]_vars  
 
+ThreadBWaitsCorrectly == 
+  [][CH!Rcv
+       => \/ /\ threadAWaiting 
+             /\ \neg threadAWaiting' 
+             /\ UNCHANGED threadBWaiting 
+          \/ /\ \neg threadAWaiting 
+             /\ threadBWaiting' 
+             /\ UNCHANGED threadAWaiting]_vars  
 =============================================================================
 \* Modification History
-\* Last modified Thu Jun 13 09:53:15 AST 2019 by marko
+\* Last modified Thu Jun 13 11:01:20 AST 2019 by marko
 \* Created Mon Jun 10 10:41:14 AST 2019 by marko
