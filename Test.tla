@@ -20,7 +20,7 @@ TypeInvariant ==
 
 Init ==
   /\ CH!Init
-  /\ SYNC!Init
+  /\ SYNC!SyncThreadInit
   /\ TypeInvariant
   
 threadASend ==
@@ -66,5 +66,5 @@ Spec ==
 
 =============================================================================
 \* Modification History
-\* Last modified Mon Jun 10 14:36:07 AST 2019 by marko
+\* Last modified Thu Jun 13 09:53:15 AST 2019 by marko
 \* Created Mon Jun 10 10:41:14 AST 2019 by marko
